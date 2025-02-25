@@ -1,6 +1,15 @@
 import os
 import sys
 import time
+import logging
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+logger = logging.getLogger("GrandChessRealms")
 
 # Add the current directory to the Python path
 sys.path.append(os.path.dirname(__file__))
@@ -10,6 +19,13 @@ from game_structure import ChessRPG
 from dice_mechanics import GameMechanics
 from lore_and_story import LoreManager, StoryManager
 from chess_engine_integration import ChessMatchManager
+
+try:
+    from chessnut_integration import integrate_with_chess_manager
+    CHESSNUT_AVAILABLE = True
+except ImportError:
+    logger.warning("Chessnut integration module not found. Continuing without Chessnut support.")
+    CHESSNUT_AVAILABLE = False
 
 
 class GrandChessRealms:
@@ -32,6 +48,23 @@ class GrandChessRealms:
         # Initialize chess engine
         print("Setting up chess engine...")
         self.chess_manager = ChessMatchManager()
+        
+        # Initialize Chessnut Pro integration
+        if CHESSNUT_AVAILABLE:
+            print("Looking for Chessnut Pro board...")
+            try:
+                self.chess_manager = integrate_with_chess_manager(self.chess_manager)
+                if hasattr(self.chess_manager, 'chessnut') and self.chess_manager.chessnut.connected:
+                    print("✅ Chessnut Pro connected and ready! You can use the physical board for moves.")
+                else:
+                    print("❌ No Chessnut Pro board detected. Using keyboard input for chess moves.")
+                    print("   You can check connection status with the 'chessnut' command during gameplay.")
+            except Exception as e:
+                logger.error(f"Error setting up Chessnut Pro: {e}")
+                print(f"Error setting up Chessnut Pro: {e}")
+                print("Continuing without Chessnut integration.")
+        else:
+            print("Chessnut integration not available. Using keyboard input for chess moves.")
         
         # Initialize dice mechanics for non-chess events
         print("Preparing game mechanics...")
@@ -92,9 +125,87 @@ class GrandChessRealms:
         elif action == "roll" and len(words) > 1:
             self.handle_dice_roll(" ".join(words[1:]))
         
+        elif action == "chessnut":
+            self.check_chessnut_status()
+        
+        elif action == "save":
+            self.save_game()
+        
+        elif action == "load":
+            if len(words) > 1:
+                self.load_game(words[1])
+            else:
+                print("Please specify a save file to load.")
+                input("Press Enter to continue...")
+        
+        elif action == "clear":
+            os.system('cls' if os.name == 'nt' else 'clear')
+        
         else:
             # Default to original command handling
             self.original_process_command(command)
+    
+    def check_chessnut_status(self):
+        """Check and display Chessnut Pro connection status"""
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print("=" * 60)
+        print(" CHESSNUT PRO STATUS ")
+        print("=" * 60)
+        
+        if not CHESSNUT_AVAILABLE:
+            print("\n❌ Chessnut Pro integration module is not installed")
+            print("\nTo enable Chessnut Pro integration, make sure chessnut_integration.py")
+            print("is in your game directory and EasyLinkSDK is properly installed.")
+            input("\nPress Enter to continue...")
+            return
+        
+        if hasattr(self.chess_manager, 'chessnut'):
+            chessnut = self.chess_manager.chessnut
+            
+            # Get detailed status
+            status = chessnut.get_connection_status()
+            
+            if status['connected']:
+                print("\n✅ Chessnut Pro is connected and ready")
+                print("\nYou can use your physical board to make moves during chess matches.")
+                print("The game will automatically detect when you move pieces on the board.")
+                print("If a move isn't detected, you can still enter moves manually.")
+            else:
+                print("\n❌ Chessnut Pro is not connected")
+                
+                if status['sdk_available']:
+                    print("\nSDK Status: Available")
+                    print(f"Last Error: {status['last_error'] or 'None'}")
+                    print(f"Connection Attempts: {status['connection_attempts']}")
+                    
+                    print("\nAttempting to reconnect...")
+                    if chessnut.connect(auto_retry=False):
+                        # Check if actually connected after a short delay
+                        time.sleep(2)
+                        if chessnut.connected:
+                            print("Successfully reconnected to Chessnut Pro!")
+                        else:
+                            print("Connection initiated but not established yet.")
+                            print("Please check your board and try again later.")
+                    else:
+                        print("Reconnection failed. Please check your board and try again.")
+                        print("Make sure the board is powered on and within Bluetooth range.")
+                else:
+                    print("\nChessnut SDK is not available. Please install EasyLinkSDK.")
+            
+            # Provide troubleshooting tips
+            print("\nTroubleshooting Tips:")
+            print("1. Make sure your Chessnut Pro is powered on")
+            print("2. Ensure Bluetooth is enabled on your computer")
+            print("3. Place the board within range of your computer")
+            print("4. Check that the board has sufficient battery")
+            print("5. Restart the board and try connecting again")
+        else:
+            print("\n❌ Chessnut Pro integration is not available")
+            print("\nThe Chessnut Pro integration module may not be properly installed.")
+            print("Please refer to the setup guide for instructions.")
+        
+        input("\nPress Enter to continue...")
     
     def enhanced_move_player(self, direction):
         """Enhanced move player function that checks for random encounters"""
@@ -130,10 +241,20 @@ class GrandChessRealms:
         
         # Chess match setup
         os.system('cls' if os.name == 'nt' else 'clear')
-        print(f"=== CHESS CHALLENGE: {self.game.player['name']} vs. {npc['name']} ===\n")
+        print("=" * 60)
+        print(f" CHESS CHALLENGE: {self.game.player['name']} vs. {npc['name']} ")
+        print("=" * 60)
+        
+        # Check if Chessnut is available
+        has_chessnut = (CHESSNUT_AVAILABLE and hasattr(self.chess_manager, 'chessnut') and 
+                        self.chess_manager.chessnut.connected)
+        
+        if has_chessnut:
+            print("\n✓ Chessnut Pro board detected - you can make moves physically on your board")
+            print("  The game will instruct you when to update your board with opponent moves")
         
         # Narrative introduction to the match
-        print(f"{npc['name']} accepts your challenge.")
+        print(f"\n{npc['name']} accepts your challenge.")
         print("As you both take your places at the board, a sense of anticipation fills the air.")
         
         if npc.get("hostile", False):
@@ -175,12 +296,14 @@ class GrandChessRealms:
     def handle_chess_result(self, result, npc, npc_id):
         """Handle the outcome of a chess match"""
         os.system('cls' if os.name == 'nt' else 'clear')
-        print(f"=== MATCH RESULT: {self.game.player['name']} vs. {npc['name']} ===\n")
+        print("=" * 60)
+        print(f" MATCH RESULT: {self.game.player['name']} vs. {npc['name']} ")
+        print("=" * 60)
         
         # Update player stats
         if result == "win":
             self.game.player["chess_wins"] += 1
-            print("Congratulations! You have won the match.")
+            print("\nCongratulations! You have won the match.")
             
             if npc.get("hostile", False):
                 print(f"\n{npc['name']} looks shocked. \"Impossible! How could I lose to you?\"")
@@ -209,7 +332,7 @@ class GrandChessRealms:
         
         elif result == "loss":
             self.game.player["chess_losses"] += 1
-            print("You have lost the match.")
+            print("\nYou have lost the match.")
             
             if npc.get("hostile", False):
                 print(f"\n{npc['name']} smirks triumphantly. \"As expected. You were no match for me.\"")
@@ -228,7 +351,7 @@ class GrandChessRealms:
         
         else:  # Draw
             self.game.player["chess_draws"] += 1
-            print("The match ends in a draw.")
+            print("\nThe match ends in a draw.")
             print(f"\n{npc['name']}: \"A fair outcome. We seem evenly matched.\"")
             
             # Special handling for the wandering knight
@@ -244,8 +367,11 @@ class GrandChessRealms:
     def offer_alignment_choice(self):
         """Offer the player a choice of alignment"""
         os.system('cls' if os.name == 'nt' else 'clear')
-        print("=== A CHOICE OF PATHS ===\n")
-        print("Sir Galwynne studies you thoughtfully before speaking:")
+        print("=" * 60)
+        print(" A CHOICE OF PATHS ")
+        print("=" * 60)
+        
+        print("\nSir Galwynne studies you thoughtfully before speaking:")
         print("\"You stand at a crossroads, both literally and figuratively.")
         print("The path you choose will shape your journey through the Chess Realms.\"")
         
@@ -274,8 +400,11 @@ class GrandChessRealms:
         
         while viewing_lore:
             os.system('cls' if os.name == 'nt' else 'clear')
-            print("=== LORE CODEX ===\n")
-            print("Discovered lore entries: {}\n".format(self.lore.get_discovered_lore_count()))
+            print("=" * 60)
+            print(" LORE CODEX ")
+            print("=" * 60)
+            
+            print(f"\nDiscovered lore entries: {self.lore.get_discovered_lore_count()}\n")
             
             print("Categories:")
             print("1. History")
@@ -320,7 +449,9 @@ class GrandChessRealms:
             
             # Show entries in this category
             os.system('cls' if os.name == 'nt' else 'clear')
-            print(f"=== {category.upper()} ===\n")
+            print("=" * 60)
+            print(f" {category.upper()} ")
+            print("=" * 60)
             
             for i, (id, title) in enumerate(entries, 1):
                 print(f"{i}. {title}")
@@ -343,18 +474,23 @@ class GrandChessRealms:
             
             if entry:
                 os.system('cls' if os.name == 'nt' else 'clear')
-                print(f"=== {entry['title'].upper()} ===\n")
+                print("=" * 60)
+                print(f" {entry['title'].upper()} ")
+                print("=" * 60)
+                print()
                 print(entry['content'])
                 input("\nPress Enter to continue...")
     
     def show_quests(self):
         """Show current quests"""
         os.system('cls' if os.name == 'nt' else 'clear')
-        print("=== QUESTS ===\n")
+        print("=" * 60)
+        print(" QUESTS ")
+        print("=" * 60)
         
         # Main objective
         main_objective = self.story.get_current_objective()
-        print("Main Objective:")
+        print("\nMain Objective:")
         print(f"- {main_objective}")
         
         # Active quests
@@ -406,7 +542,9 @@ class GrandChessRealms:
                 
                 if book:
                     os.system('cls' if os.name == 'nt' else 'clear')
-                    print(f"=== {book['title'].upper()} ===")
+                    print("=" * 60)
+                    print(f" {book['title'].upper()} ")
+                    print("=" * 60)
                     print(f"By {book['author']}\n")
                     print(book['content'])
                     
@@ -428,11 +566,13 @@ class GrandChessRealms:
     def show_player_status(self):
         """Show detailed player status"""
         os.system('cls' if os.name == 'nt' else 'clear')
-        print("=== CHARACTER STATUS ===\n")
+        print("=" * 60)
+        print(" CHARACTER STATUS ")
+        print("=" * 60)
         
         player = self.game.player
         
-        print(f"Name: {player['name']}")
+        print(f"\nName: {player['name']}")
         print(f"Background: {player['background']}")
         print(f"Alignment: {player['alignment'].title()}")
         
@@ -454,34 +594,53 @@ class GrandChessRealms:
         
         print(f"Estimated Rating: {int(estimated_rating)}")
         
+        print("\nInventory:")
+        if player["inventory"]:
+            for item in player["inventory"]:
+                print(f"- {item.replace('_', ' ').title()}")
+        else:
+            print("- Empty")
+        
         print("\nJourney Progress:")
         locations_visited = len(player['visited_locations'])
         print(f"Locations visited: {locations_visited}")
         print(f"Lore discovered: {self.lore.get_discovered_lore_count()} entries")
         print(f"Current chapter: {self.story.current_chapter.split('chapter')[1]}")
         
+        # Show Chessnut Pro status
+        if CHESSNUT_AVAILABLE and hasattr(self.chess_manager, 'chessnut'):
+            print("\nChessnut Pro Status:")
+            if self.chess_manager.chessnut.connected:
+                print("✅ Connected and ready for physical moves")
+            else:
+                print("❌ Not connected (type 'chessnut' to check status)")
+        
         input("\nPress Enter to continue...")
     
     def show_chess_tip(self):
         """Show a random chess tip"""
         os.system('cls' if os.name == 'nt' else 'clear')
-        print("=== CHESS TIP ===\n")
+        print("=" * 60)
+        print(" CHESS TIP ")
+        print("=" * 60)
         
         tip = self.chess_manager.display_chess_tip()
-        print(tip)
+        print(f"\n{tip}")
         
         input("\nPress Enter to continue...")
     
     def handle_dice_roll(self, roll_type):
         """Handle manual dice rolls"""
         os.system('cls' if os.name == 'nt' else 'clear')
-        print("=== DICE ROLL ===\n")
+        print("=" * 60)
+        print(" DICE ROLL ")
+        print("=" * 60)
         
         # Parse roll syntax (e.g., "roll d20", "roll 2d6")
         parts = roll_type.lower().split('d')
         
         if len(parts) != 2:
-            print("Invalid roll format. Use 'd20' or '2d6', etc.")
+            print("\nInvalid roll format. Use 'd20' or '2d6', etc.")
             input("Press Enter to continue...")
             return
         
@@ -495,18 +654,72 @@ class GrandChessRealms:
         try:
             sides = int(parts[1])
         except:
-            print("Invalid number of sides. Try 'd20' or 'd6', etc.")
+            print("\nInvalid number of sides. Try 'd20' or 'd6', etc.")
             input("Press Enter to continue...")
             return
         
         # Perform the roll
         roll = self.mechanics.roll_dice(num_dice, sides)
         
-        print(f"Rolling {num_dice}d{sides}...")
+        print(f"\nRolling {num_dice}d{sides}...")
         time.sleep(1)
         print(f"Result: {roll}")
         
         input("\nPress Enter to continue...")
+    
+    def save_game(self):
+        """Save the current game state"""
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print("=" * 60)
+        print(" SAVE GAME ")
+        print("=" * 60)
+        
+        # If no name yet, ask for one
+        if not self.game.player["name"]:
+            print("\nYou need to create a character before saving.")
+            input("Press Enter to continue...")
+            return
+            
+        # Get save filename
+        default_filename = f"{self.game.player['name']}_save.dat"
+        filename = input(f"\nEnter filename to save as (default: {default_filename}): ").strip()
+        
+        if not filename:
+            filename = default_filename
+        
+        # Ensure it has the .dat extension
+        if not filename.endswith('.dat'):
+            filename += '.dat'
+        
+        # Call the game's save function
+        self.game.save_game(filename)
+        
+        input("\nPress Enter to continue...")
+    
+    def load_game(self, filename):
+        """Load a saved game"""
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print("=" * 60)
+        print(" LOAD GAME ")
+        print("=" * 60)
+        
+        # Ensure it has the .dat extension
+        if not filename.endswith('.dat'):
+            filename += '.dat'
+        
+        # Check if the file exists
+        if not os.path.exists(filename):
+            print(f"\nSave file '{filename}' not found.")
+            input("Press Enter to continue...")
+            return
+        
+        # Call the game's load function
+        if self.game.load_game(filename):
+            print("\nGame loaded successfully!")
+        else:
+            print("\nError loading game.")
+        
+        input("Press Enter to continue...")
     
     def run(self):
         """Run the game"""
@@ -518,7 +731,17 @@ class GrandChessRealms:
         finally:
             # Clean up
             if self.chess_manager:
+                # Disconnect from Chessnut if connected
+                if CHESSNUT_AVAILABLE and hasattr(self.chess_manager, 'chessnut'):
+                    try:
+                        self.chess_manager.chessnut.disconnect()
+                        logger.info("Disconnected from Chessnut Pro")
+                    except Exception as e:
+                        logger.error(f"Error disconnecting from Chessnut Pro: {e}")
+                
+                # Quit the chess engine
                 self.chess_manager.close()
+            
             print("Thank you for playing Grand Chess Realms!")
 
 
@@ -529,6 +752,7 @@ if __name__ == "__main__":
         game = GrandChessRealms()
         game.run()
     except Exception as e:
+        logger.error(f"An error occurred: {e}", exc_info=True)
         print(f"An error occurred: {e}")
         if input("Show detailed error? (y/n): ").lower().startswith('y'):
             import traceback

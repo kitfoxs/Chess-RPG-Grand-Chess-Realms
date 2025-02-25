@@ -1,0 +1,6 @@
+/Users/kitolivas/Documents/GitHub/Chess-RPG-Grand-Chess-Realms/Text Based Game/build/CMakeFiles/EasyLinkSDK.dir
+/Users/kitolivas/Documents/GitHub/Chess-RPG-Grand-Chess-Realms/Text Based Game/build/CMakeFiles/easylink.dir
+/Users/kitolivas/Documents/GitHub/Chess-RPG-Grand-Chess-Realms/Text Based Game/build/CMakeFiles/edit_cache.dir
+/Users/kitolivas/Documents/GitHub/Chess-RPG-Grand-Chess-Realms/Text Based Game/build/CMakeFiles/rebuild_cache.dir
+/Users/kitolivas/Documents/GitHub/Chess-RPG-Grand-Chess-Realms/Text Based Game/build/pybind11/CMakeFiles/edit_cache.dir
+/Users/kitolivas/Documents/GitHub/Chess-RPG-Grand-Chess-Realms/Text Based Game/build/pybind11/CMakeFiles/rebuild_cache.dir

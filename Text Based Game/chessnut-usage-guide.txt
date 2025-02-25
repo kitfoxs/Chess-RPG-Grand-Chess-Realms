@@ -1,0 +1,72 @@
+# Using Your Chessnut Pro with Grand Chess Realms
+
+## During Gameplay
+
+### Starting a Chess Match
+
+When you enter a chess match in the game, the following will happen:
+
+1. The game will automatically check if your Chessnut Pro is connected
+2. If connected, you'll see a message: "✓ Chessnut Pro board detected - you can make moves physically on your board"
+3. Set up your physical board in the starting position (if it isn't already)
+4. The match will begin as normal
+
+### Making Moves
+
+You have two ways to make moves:
+
+#### Physical Moves on the Chessnut Pro
+
+1. Simply move the piece on your physical board
+2. The move will be automatically detected and sent to the game
+3. You'll see confirmation in the terminal: "Move detected on physical board: [move]"
+4. If legal, the move will be executed in the game
+
+#### Manual Input (Backup)
+
+If the board doesn't detect your move or you prefer keyboard input:
+1. Type your move in UCI format (e.g., `e2e4`) at the prompt
+2. Press Enter to execute the move
+
+### Opponent's Moves
+
+When your opponent makes a move:
+1. The move will be displayed in the terminal
+2. You need to manually make this move on your physical Chessnut board
+3. This keeps your physical board synchronized with the game state
+
+## Command Reference
+
+### New Command: `chessnut`
+
+Type `chessnut` at any time to:
+- Check the connection status of your Chessnut Pro
+- Attempt to reconnect if the connection was lost
+- View basic usage information
+
+### Troubleshooting During Play
+
+If your board isn't detecting moves properly:
+
+1. Check the Chessnut Pro status with the `chessnut` command
+2. Make sure pieces are properly placed on the squares
+3. Try making the move again, ensuring pieces are firmly placed
+4. If still having issues, you can always fall back to manual move input
+
+### Making Special Moves
+
+For special chess moves:
+
+- **Castling**: Make the king's full move on the board (e.g., e1g1 for white kingside castling)
+- **En Passant**: Simply capture the pawn as you normally would
+- **Promotion**: Move your pawn to the 8th rank, and the game will prompt you for the promotion piece
+
+## Best Practices
+
+1. **Start with a clean setup**: Always begin matches with all pieces in the correct starting positions
+2. **Mirror opponent moves carefully**: Make the exact moves your opponent makes in the game
+3. **Be deliberate with your moves**: Place pieces firmly in the center of squares
+4. **Check for successful detection**: Watch for the move confirmation message in the terminal
+5. **Keep the board charged**: Ensure your Chessnut Pro has sufficient battery charge for your gaming session
+
+Enjoy the enhanced immersion of playing Grand Chess Realms with your physical Chessnut Pro chess board!

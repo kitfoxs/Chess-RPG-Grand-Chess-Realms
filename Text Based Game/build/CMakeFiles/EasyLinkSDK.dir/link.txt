@@ -1,0 +1,2 @@
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libEasyLinkSDK.a CMakeFiles/EasyLinkSDK.dir/EasyLinkSDK/sdk/EasyLink.cpp.o CMakeFiles/EasyLinkSDK.dir/EasyLinkSDK/sdk/easy_link_c.cpp.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib libEasyLinkSDK.a

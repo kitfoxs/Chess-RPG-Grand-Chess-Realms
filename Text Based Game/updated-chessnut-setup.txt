@@ -1,0 +1,125 @@
+# Setting Up Chessnut Pro with Grand Chess Realms
+
+## Overview
+
+This guide will help you connect your Chessnut Pro electronic chess board to the Grand Chess Realms game, allowing you to make moves physically on the board that are automatically detected by the game.
+
+## Requirements
+
+- Chessnut Pro electronic chess board
+- EasyLinkSDK (from the GitHub repository: https://github.com/chessnutech/EasyLinkSDK)
+- MacBook Pro with M4 chip (the integration is optimized for Mac with Apple Silicon)
+- Grand Chess Realms game files (all Python files properly set up)
+- Python 3.7 or higher
+- python-chess package
+
+## Installation Steps
+
+### 1. Set Up the EasyLinkSDK
+
+First, install the EasyLinkSDK for Python:
+
+```bash
+# Clone the repository
+git clone https://github.com/chessnutech/EasyLinkSDK.git
+
+# Navigate to the SDK directory
+cd EasyLinkSDK
+
+# Install the SDK
+pip install .
+```
+
+If there are specific installation instructions in the EasyLinkSDK repository, follow those instead.
+
+### 2. Install the Required Python Packages
+
+Ensure you have all necessary Python packages:
+
+```bash
+pip install python-chess
+```
+
+### 3. Place the Game Files
+
+Ensure all these files are in the same directory:
+
+- `main_game.py` (updated version with Chessnut integration)
+- `chessnut_integration.py` (the Chessnut adapter module)
+- `game_structure.py`
+- `chess_engine_integration.py`
+- `dice_mechanics.py`
+- `lore_and_story.py`
+
+### 4. Prepare Your Chessnut Pro Board
+
+1. Make sure your Chessnut Pro board is charged
+2. Turn on the board using the power button
+3. Make sure Bluetooth is enabled on your MacBook Pro
+4. Set up the pieces on the board in the starting position
+
+### 5. Allow Bluetooth Permissions
+
+On first run, macOS may prompt you to allow the terminal/Python application to use Bluetooth. Be sure to grant this permission for the Chessnut Pro to work correctly.
+
+## Using the Chessnut Pro with the Game
+
+1. Start the game: `python main_game.py`
+2. The game will automatically attempt to connect to your Chessnut Pro
+3. If the connection is successful, you'll see a message: "✅ Chessnut Pro connected and ready!"
+4. If the connection fails, you'll see: "❌ No Chessnut Pro board detected. Using keyboard input for chess moves."
+5. You can check connection status or attempt to reconnect at any time with the `chessnut` command
+
+## During Chess Matches
+
+When a chess match begins:
+- The game will display the board on screen as usual
+- The physical board will be automatically synchronized with the game position
+- You have two options for making moves:
+  - Make moves physically on the Chessnut Pro board (they will be automatically detected)
+  - Enter moves manually via the keyboard (useful as a fallback)
+- When your opponent makes a move:
+  - The move will be shown on the screen
+  - You'll be prompted to make the same move on your physical board
+  - After confirming you've made the opponent's move, the game continues
+
+## Troubleshooting
+
+### Board Not Connecting
+
+If the board doesn't connect automatically:
+1. Type `chessnut` at the game prompt to see detailed connection status
+2. Ensure your Chessnut Pro is powered on and has adequate battery
+3. Verify Bluetooth is enabled on your Mac
+4. Try powering the board off and on again
+5. Check System Settings > Privacy & Security > Bluetooth to ensure Terminal has permission
+
+### Moves Not Being Detected
+
+If the board doesn't detect your moves:
+1. Make sure pieces are properly placed in the center of the squares
+2. Try the move again, ensuring you're making a complete move (picking up from source square and placing on destination square)
+3. Check that the move is legal according to chess rules
+4. If all else fails, you can enter the move manually
+
+### Board State Gets Out of Sync
+
+If the physical board position differs from the game state:
+1. The game will attempt to re-sync the board after each opponent move
+2. You can restart the match if the positions become too out of sync
+3. Always make the opponent's moves exactly as shown in the game
+
+## Compatibility Notes for Mac M4
+
+The integration is specifically optimized for Mac with Apple Silicon, including your M4 chip. The code includes:
+
+- Proper thread handling for Apple Silicon's performance characteristics
+- Efficient Bluetooth management to conserve battery
+- Robust error handling that works well with macOS security features
+
+If you encounter any Mac-specific issues:
+1. Ensure your macOS is up to date
+2. Check that Bluetooth is enabled and permissions are granted
+3. Try running the game from Terminal rather than an IDE for better Bluetooth access
+
+Enjoy playing Grand Chess Realms with your Chessnut Pro board!
