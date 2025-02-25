@@ -1,0 +1,89 @@
+# Grand Chess Realms - Setup Instructions
+
+## Overview
+
+Grand Chess Realms is a text-based RPG where every significant conflict is resolved through classical chess matches. This game features:
+
+- Rich, lore-heavy narrative set in a world divided between White and Black Kingdoms
+- Full chess integration using the Stockfish chess engine
+- Character creation and development
+- NPC interactions with dialogue trees
+- Dice-based mechanics for exploration and social interactions
+- Quest system with branching storylines
+
+## Requirements
+
+- Python 3.7 or higher
+- Required Python packages:
+  - `python-chess`
+  - Other standard libraries: `os`, `sys`, `time`, `random`, `pickle`
+- Stockfish chess engine (optional but recommended for best experience)
+
+## Installation
+
+1. First, make sure you have Python 3.7+ installed on your system.
+
+2. Install the required Python packages:
+   ```
+   pip install python-chess
+   ```
+
+3. Download Stockfish chess engine:
+   - Windows: [Stockfish for Windows](https://stockfishchess.org/download/)
+   - Mac: `brew install stockfish` or download from the website
+   - Linux: Use your package manager (e.g., `apt install stockfish`) or download directly
+
+4. Place the Stockfish executable in one of these locations (or update the path in the code):
+   - In the same directory as the game files
+   - In a subdirectory named `engines/`
+   - In your system PATH
+
+5. Organize your project files as follows:
+   ```
+   grand_chess_realms/
+   ├── main_game.py           # Main script to run the game
+   ├── game_structure.py      # Core game structure
+   ├── chess_engine_integration.py  # Chess integration
+   ├── dice_mechanics.py      # Dice mechanics for non-chess events
+   ├── lore_and_story.py      # Lore and story management
+   ├── stockfish              # Stockfish executable (optional location)
+   └── engines/               # Another optional location for Stockfish
+       └── stockfish
+   ```
+
+## Running the Game
+
+1. Navigate to the game directory in your terminal/command prompt.
+
+2. Run the main game script:
+   ```
+   python main_game.py
+   ```
+
+3. Follow the on-screen instructions to create your character and begin your journey.
+
+## Game Controls
+
+- Movement: `move [direction]` or `go [direction]` (north, south, east, west)
+- Interactions: `talk to [person]`, `examine [item/person]`, `take [item]`
+- Chess: `challenge [person]` to initiate a chess match
+- Information: `inventory`, `status`, `quests`, `lore`, `help`
+- Dice: `roll [dice]` (e.g., `roll d20`, `roll 2d6`)
+- Reading: `read [item]` to read books or scrolls
+- Other: `tip` to get a chess tip, `quit` to exit the game
+
+## Chess Controls
+
+During chess matches:
+- Enter moves in UCI format (e.g., `e2e4`, `g1f3`) or algebraic notation (e.g., `e4`, `Nf3`)
+- Type `resign` to forfeit the match
+
+## Tips for New Players
+
+1. Talk to everyone - NPCs provide valuable information, quests, and chess opportunities.
+2. Explore thoroughly - hidden locations may contain useful items or lore.
+3. Improve your chess skills - better performance in chess matches leads to story progression.
+4. Pay attention to the lore - understanding the world helps make meaningful choices.
+5. Use the dice mechanics for non-chess situations when appropriate.
+
+Enjoy your adventure in the Grand Chess Realms!
